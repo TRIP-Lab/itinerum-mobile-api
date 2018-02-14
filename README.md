@@ -6,14 +6,6 @@ This repository contains the Flask-Restful API for the mobile iOS and Android ap
 
 The most important guideline is the `master` branch should always contain a working version of the application with appropriate unit tests. New features should be developed in a branch of the master named  as `feature-name-action`, for example: `survey-wizard-upsert-dropdown-options`.
 
-Committing code should happen in the following order:
-
-- Feature is developed or updated within its own named branch
-- After all tests pass, feature is merged to `master` branch
-- `master` branch is merged to `testing`, which tests and builds the Docker container on the CI server
-- `testing` branch is merged to `staging` to deploy the image to AWS ECR
-- Developer either checks out their feature branch to continue work, or returns to step 1 and creates a new branch
-
 #### Contributing
 
 - Fork this repository to your own account
