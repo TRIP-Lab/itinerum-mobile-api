@@ -14,6 +14,14 @@ Committing code should happen in the following order:
 - `testing` branch is merged to `staging` to deploy the image to AWS ECR
 - Developer either checks out their feature branch to continue work, or returns to step 1 and creates a new branch
 
+#### Contributing
+
+- Fork this repository to your own account
+- Edit the project to include your new contributions
+- After all tests pass, create a pull request to this project
+- Accepted changes will be merged when code is reviewed
+
+
 ## Getting Started
 
 It is recommended to create a single shared virtualenv for the Itinerum APIs with [virtualenv-wrapper](http://virtualenvwrapper.readthedocs.io), which makes virtualenvs friendlier to user. In the examples that follow, a virtualenv name of `itapi` will be used in this document.
