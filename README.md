@@ -1,27 +1,26 @@
 # itinerum-mobile-api
 
-*This is a working document.*
-
 This repository contains the Flask-Restful API for the mobile iOS and Android applications. The API handles user creation, survey submission, points & prompts collection and the accompanying Dockerfile/Gitlab-CI config files.
 
 ### Development Guide
 
 The most important guideline is the `master` branch should always contain a working version of the application with appropriate unit tests. New features should be developed in a branch of the master named  as `feature-name-action`, for example: `survey-wizard-upsert-dropdown-options`.
 
-#### Contributing
+Committing code should happen in the following order:
 
-- Fork this repository to your own account
-- Edit the project to include your new contributions
-- After all tests pass, create a pull request to this project
-- Accepted changes will be merged when code is reviewed
+- Feature is developed or updated within its own named branch
+- After all tests pass, feature is merged to `master` branch
+- `master` branch is merged to `testing`, which tests and builds the Docker container on the CI server
+- `testing` branch is merged to `staging` to deploy the image to AWS ECR
+- Developer either checks out their feature branch to continue work, or returns to step 1 and creates a new branch
 
 ## Getting Started
 
-It is recommended to create a single shared virtualenv for the Itinerum APIs with [virtualenv-wrapper](http://virtualenvwrapper.readthedocs.io), which makes virtualenvs friendlier to user. In the examples that follow, a virtualenv name of `itapi` will be used.
+It is recommended to create a single shared virtualenv for the Itinerum APIs with [virtualenv-wrapper](http://virtualenvwrapper.readthedocs.io), which makes virtualenvs friendlier to user. In the examples that follow, a virtualenv name of `itapi` will be used in this document.
 
 ### Database
 
-Clone the [itinerum-dashboard-api repository](https://github.com/TRIP-Lab/itinerum-dashboard-api) and follow the README instructions for setting up a new database with the *flask-migrate* management script. 
+Clone the [itinerum-admin-api repository](https://github.com/TRIP-Lab/itinerum-admin-api) and follow the README instructions for setting up a new database with the *flask-migrate* management script. 
 
 ###### Changes
 
@@ -58,10 +57,6 @@ $ docker run -d -p 9001:9001 --env-file=conf/dev_env itinerum-mobile-api:latest
 where *dev_env* is a file containing your local environment variables. The portal can then be reached at: **http://\<docker-machine-address>:9001/mobile/v1/**
 
 *Note*: It can be tricky to get the Docker version of the application communicate to the PostgreSQL database on the host system. Be sure that the `dev_env` file reflects the LAN address of the host system and an existing database. It is useful to watch for events in the `postgresql.log` file to diagnose issues here.
-
-### Deployment
-
-The `master` branch contains the latest version of the tested dashboard. When new contributions are ready to go live, the `master` branch is merged into the `testing` branch. The *testing* Gitlab-CI routine will build the Docker image and run the full suite of unittests. In the case of the web dashboard, a development version will be deployed to: [https://<api.root.url>/mobile/v1/](https://<api.root.url>/mobile/v1/). When all tests pass, the `master` branch can then pulled to the `production` branch.
 
 ### Mobile API Requests Documentation
 
