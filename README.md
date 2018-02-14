@@ -54,10 +54,10 @@ Edit `./conf/dev_env` as need and run the compiled Docker environment with:
 $ docker run -d -p 9001:9001 --env-file=conf/dev_env itinerum-mobile-api:latest
 ```
 
-where *dev_env* is a file containing your local environment variables. The portal can then be reached at: **http://\<docker-machine-address>:9001/mobile/v1/**
+where *dev_env* is a file containing your local environment variables. The portal can then be reached at: `http://<docker-machine-address>:9001/mobile/v1/`
 
 *Note*: It can be tricky to get the Docker version of the application communicate to the PostgreSQL database on the host system. Be sure that the `dev_env` file reflects the LAN address of the host system and an existing database. It is useful to watch for events in the `postgresql.log` file to diagnose issues here.
 
 ### Mobile API Requests Documentation
 
-Available at: http://trip-lab.gitlab.io/itinerum-mobile-api-docs
+Available at: http://trip-lab.github.io/itinerum-mobile-api-docs
