@@ -2,6 +2,8 @@
 
 This repository contains the Flask-Restful API for the mobile iOS and Android applications. The API handles user creation, survey submission, points & prompts collection and the accompanying Dockerfile/Gitlab-CI config files.
 
+API requests documentation: http://trip-lab.github.io/itinerum-mobile-api-docs
+
 ### Development Guide
 
 The most important guideline is the `master` branch should always contain a working version of the application with appropriate unit tests. New features should be developed in a branch of the master named  as `feature-name-action`, for example: `survey-wizard-upsert-dropdown-options`.
@@ -57,7 +59,3 @@ $ docker run -d -p 9001:9001 --env-file=conf/dev_env itinerum-mobile-api:latest
 where *dev_env* is a file containing your local environment variables. The portal can then be reached at: `http://<docker-machine-address>:9001/mobile/v1/`
 
 *Note*: It can be tricky to get the Docker version of the application communicate to the PostgreSQL database on the host system. Be sure that the `dev_env` file reflects the LAN address of the host system and an existing database. It is useful to watch for events in the `postgresql.log` file to diagnose issues here.
-
-### Mobile API Requests Documentation
-
-Available at: http://trip-lab.github.io/itinerum-mobile-api-docs
