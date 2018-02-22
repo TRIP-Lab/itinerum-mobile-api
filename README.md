@@ -1,6 +1,6 @@
 # itinerum-mobile-api
 
-This repository contains the Flask-Restful API for the mobile iOS and Android applications. The API handles user creation, survey submission, points & prompts collection and the accompanying Dockerfile/Gitlab-CI config files.
+This repository contains the Flask-Restful API for the mobile iOS and Android applications. The API handles user creation, survey submission, points & prompts collection and the accompanying Dockerfile.
 
 **API guide:** http://trip-lab.github.io/itinerum-mobile-api-docs
 
