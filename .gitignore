@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Itinerum - exclude all confs except the default sample
+conf/*
+!conf/sample
