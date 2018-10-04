@@ -28,7 +28,7 @@ def test_create_mobile_user(app, client, session):
     r = client.post(url, data=json.dumps(new_user_payload))
     assert r.status_code == 201
 
-    json_data = json.loads(r.data)
+    json_data = r.get_json()
     assert json_data['results']['uuid'] == new_user_payload['user']['uuid']
     assert json_data['results']['lang'] == new_user_payload['lang']
     assert json_data['results']['defaultAvatar'] == '/assets/static/defaultAvatar.png'
@@ -66,7 +66,7 @@ def test_create_mobile_user_legacy(app, client, session):
     r = client.post(url, data=json.dumps(new_user_payload))
     assert r.status_code == 201
 
-    json_data = json.loads(r.data)
+    json_data = r.get_json()
     assert json_data['results']['uuid'] == new_user_payload['user']['uuid']
     assert json_data['results']['lang'] == new_user_payload['lang']
     assert json_data['results']['defaultAvatar'] == '/assets/static/defaultAvatar.png'

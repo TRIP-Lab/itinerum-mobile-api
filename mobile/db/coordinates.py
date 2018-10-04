@@ -16,7 +16,7 @@ class MobileCoordinatesActions:
                     chunk.append(next(it))
                 except StopIteration:
                     yield chunk
-                    raise StopIteration
+                    return
             yield chunk
 
     def insert(self, user, coordinates):

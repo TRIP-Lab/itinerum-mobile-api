@@ -25,7 +25,8 @@ class MobileCreateUserRoute(Resource):
     resource_type = 'MobileCreateUser'
 
     def post(self):
-        data = rename_json_keys(json.loads(request.data), camelcase_to_underscore)
+        json_data = json.loads(request.data.decode('utf-8'))
+        data = rename_json_keys(json_data, camelcase_to_underscore)
         survey_name = data['survey_name'].lower().strip()
 
         survey = database.survey.find_by_name(survey_name)

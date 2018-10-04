@@ -4,7 +4,7 @@
 # Functions to replicate admin dashboard survey creation from
 # JSON schema for running unit tests
 from flask_security import SQLAlchemyUserDatastore
-from flask_security.utils import encrypt_password
+from flask_security.utils import hash_password
 import json
 from models import (PromptQuestion, PromptQuestionChoice,
                     Survey, SurveyResponse, SurveyQuestion, SurveyQuestionChoice,
@@ -102,7 +102,7 @@ def create_admin_user(db, survey, email, password):
     admin_role = user_datastore.find_or_create_role(name='admin')
     user = user_datastore.create_user(
         email=email,
-        password=encrypt_password(password),
+        password=hash_password(password),
         survey_id=survey.id)
     user_datastore.add_role_to_user(user, admin_role)
 
@@ -123,4 +123,3 @@ def prepopulate(db, survey_schema_fn):
     load_survey_prompts(db, survey, prompts=survey_schema['surveyPrompts'])
     create_admin_user(db, survey, survey_schema['adminEmail'], survey_schema['adminPassword'])
     db.session.commit()
-
