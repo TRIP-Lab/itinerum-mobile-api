@@ -38,8 +38,9 @@ class MobileUserActions:
             return user
 
         # TODO: disabled for testing but re-enable when we go live!
+        # (toggles wheter survey answers can be edited via phone)
         # elif existing and not self._has_answered_survey(existing):
-        elif existing:
+        else:
             existing.model = user_data['model']
             existing.itinerum_version = user_data['itinerum_version'],
             existing.os = user_data['os'],

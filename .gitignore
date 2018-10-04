@@ -103,3 +103,5 @@ ENV/
 # Itinerum - exclude all confs except the default sample
 conf/*
 !conf/sample
+!conf/testing
+.pytest_cache

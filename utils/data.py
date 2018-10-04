@@ -3,6 +3,7 @@
 #
 # Utils: generic data structure helper functions
 import hardcoded_survey_questions
+import re
 
 
 def cast(value, _type):
@@ -34,33 +35,35 @@ def flatten_dict(value_dict, parent_key='', sep='.'):
             items.extend(flatten_dict(value, new_key, sep=sep).items())
         else:
             items.append((new_key, value))
-
     return dict(items)
 
 
-def make_keys_camelcase(dicts, max_depth=5):
-    def _recursive_camelcase(d, depth=0):
-        if depth + 1 == max_depth:
-            return d
+_camelcase_pattern = re.compile(r'([A-Z])')
+def camelcase_to_underscore(name):
+    return _camelcase_pattern.sub(lambda x: '_' + x.group(1).lower(), name)
 
-        output = {}
+_underscore_pattern = re.compile(r'_([a-z])')
+def underscore_to_camelcase(name):
+    return _underscore_pattern.sub(lambda x: x.group(1).upper(), name)
+
+
+def rename_json_keys(d, convert_func):
+    renamed = None
+    if isinstance(d, dict):
+        new_d = {}
         for key, value in d.items():
-            new_key = ''.join(letter.capitalize() or '_' for letter in key.split('_'))
-            new_key = new_key[0].lower() + new_key[1:]
+            new_d[convert_func(key)] = rename_json_keys(value, convert_func) if isinstance(value, dict) else value
+        renamed = new_d
+    elif isinstance(d, list):
+        new_l = []
+        for value in d:
+            new_l.append(rename_json_keys(value, convert_func) if isinstance(value, dict) else value)
+        renamed = new_l
+    return renamed
 
-            # continue into next level if value is a dictionary
-            if isinstance(value, dict):
-                next_level = depth + 1
-                output[new_key] = _recursive_camelcase(value, depth=next_level)
-            else:
-                output[new_key] = d[key]
 
-        return output
-
-    return_one = isinstance(dicts, dict)
-    if return_one:
-        dicts = (dicts,)
-    camelcase_dicts = [_recursive_camelcase(d) for d in dicts]
-    if return_one:
-        camelcase_dicts = camelcase_dicts[0]
-    return camelcase_dicts
+# https://www.python.org/dev/peps/pep-0485/#proposed-implementation
+# An implementation of Python 3.5's std library's math.isclose() function
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    a, b = float(a), float(b)
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)

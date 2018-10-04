@@ -6,7 +6,7 @@ from flask_restful import Resource
 import json
 
 from mobile.database import Database
-from utils.data import make_keys_camelcase
+from utils.data import rename_json_keys, camelcase_to_underscore, underscore_to_camelcase
 from utils.responses import Success, Error
 
 database = Database()
@@ -25,12 +25,12 @@ class MobileCreateUserRoute(Resource):
     resource_type = 'MobileCreateUser'
 
     def post(self):
-        data = json.loads(request.data)
-        survey_name = data['survey_name'].lower()
+        data = rename_json_keys(json.loads(request.data), camelcase_to_underscore)
+        survey_name = data['survey_name'].lower().strip()
 
         survey = database.survey.find_by_name(survey_name)
         if not survey:
-            return Error(status_code=400,
+            return Error(status_code=410,
                          headers=self.headers,
                          resource_type=self.resource_type,
                          errors=['Specified survey not found'])
@@ -43,9 +43,9 @@ class MobileCreateUserRoute(Resource):
             # supply a default max_prompts value of 0 if no prompts are set instead of None
             max_prompts = survey.max_prompts if len(prompts_json) > 0 else 0
             response = {
-                'survey_id': survey.id,
                 'user': 'New user successfully registered.',
                 'uuid': data['user']['uuid'],
+                'contact_email': survey.contact_email,
                 'default_avatar': get_default_avatar_path(),
                 'avatar': survey.avatar_uri,
                 'survey': survey_json,
@@ -62,10 +62,13 @@ class MobileCreateUserRoute(Resource):
                 'record_acceleration': survey.record_acceleration,
                 'record_mode': survey.record_mode
             }
+
+            # add in deprecation warning for v1 api
             return Success(status_code=201,
                            headers=self.headers,
                            resource_type=self.resource_type,
-                           body=make_keys_camelcase(response))
+                           status='Warning (deprecated): API v1 will soon be phased out. Please refer to documentation for v2 calls.',
+                           body=rename_json_keys(response, underscore_to_camelcase))
 
         return Error(status_code=400,
                      headers=self.headers,

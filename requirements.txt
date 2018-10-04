@@ -19,6 +19,11 @@ Jinja2==2.10
 MarkupSafe==1.0
 passlib==1.7.1
 psycopg2==2.7.4
+pytest==3.0.7
+pytest-cov==2.4.0
+pytest-flask==0.10.0
+pytest-forked==0.2
+python-dateutil==2.7.2
 pytz==2018.3
 raven==6.5.0
 six==1.11.0

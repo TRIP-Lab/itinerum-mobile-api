@@ -1,5 +1,4 @@
 CONFIG=debug
 IT_DASHBOARD_PORT=9001
-IT_SECRET_KEY=changeme
 IT_POSTGRES_URI=postgresql://user:password@localhost:5432/itinerum_dev
 

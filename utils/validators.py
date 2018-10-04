@@ -58,14 +58,13 @@ def validate_json(validations, headers, resource_type):
 # test whether a json value is present and has any value,
 # 0 is an acceptable value for integers
 def value_exists(value):
-    with current_app.app_context():
-        # Python 2/3
-        try:
-            if isinstance(value, basestring):
-                return value.strip() != ''
-        except NameError:
-            if isinstance(value, str):
-                return value.strip() != ''
-        if isinstance(value, int):
-            return True
-        return False
+    # Python 2/3
+    try:
+        if isinstance(value, basestring):
+            return value.strip() != ''
+    except NameError:
+        if isinstance(value, str):
+            return value.strip() != ''
+    if isinstance(value, int):
+        return True
+    return False

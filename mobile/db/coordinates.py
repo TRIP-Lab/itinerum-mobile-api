@@ -38,6 +38,7 @@ class MobileCoordinatesActions:
                     acceleration_y=point.get('acceleration_y'),
                     acceleration_z=point.get('acceleration_z'),
                     mode_detected=point.get('mode_detected'),
+                    point_type=point.get('point_type'),
                     timestamp=ciso8601.parse_datetime(point['timestamp'])
                 )
                 bulk_rows.append(coordinate)

@@ -12,19 +12,22 @@ from mobile import routes
 from models import db
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(config.MobileConfig.APP_NAME)
 
 
 def load_app_config(testing):
+    config_env_var = os.environ.get('CONFIG')
+    if config_env_var:
+        config_env_var = config_env_var.strip().lower()
     if testing is True:
         logger.info(' * Loading TESTING server configuration...')
         return config.MobileTestingConfig
 
     # fallback on env variable
-    elif os.environ.get('CONFIG') == 'debug':
+    elif config_env_var == 'development':
         logger.info(' * Loading DEVELOPMENT server configuration...')
         return config.MobileDevelopmentConfig
-    elif os.environ.get('CONFIG') == 'testing':
+    elif config_env_var == 'testing':
         logger.info(' * Loading TESTING server configuration...')
         return config.MobileTestingConfig
     else:
@@ -49,10 +52,16 @@ def create_app(testing=False):
         logger.info(' * Sentry.io reporting disabled.')
 
 
-    # Register mobile API routes ===============================================
-    api = Api(app, prefix=app.config['APP_ROOT'])
-    api.add_resource(routes.MobileCreateUserRoute, '/create')
-    api.add_resource(routes.MobileUpdateDataRoute, '/update')
+    # Register mobile API routes - v1 (deprecated) =============================
+    api_v1 = Api(app, prefix=app.config['APP_ROOT_V1'])
+    api_v1.add_resource(routes.v1.MobileCreateUserRoute, '/create', endpoint='api.create_v1')
+    api_v1.add_resource(routes.v1.MobileUpdateDataRoute, '/update', endpoint='api.update_v1')
+
+    # Register mobile API routes - v2 (current) ================================
+    # api_v2 = Api(app, prefix=app.config['APP_ROOT_V2'])
+    # api_v2.add_resource(routes.v2.MobileCreateUserRoute, '/create', endpoint='api.create_v2')
+    # api_v2.add_resource(routes.v2.MobileUpdateDataRoute, '/update', endpoint='api.update_v2')
+
 
     # Register health check route for load balancer ============================
     @app.route('/health')

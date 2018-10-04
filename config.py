@@ -17,7 +17,8 @@ class Config(object):
     CONF = 'base'
     APP_HOST = '0.0.0.0'
     APP_PORT = int(os.environ.get('IT_MOBILE_PORT', 9001))
-    APP_ROOT = '/mobile/v1'
+    APP_ROOT_V1 = '/mobile/v1'
+    APP_ROOT_V2 = '/mobile/v2'
     # static assets located within ReactJS itinerum-dashboard repository
     ASSETS_ROUTE = '/assets'
     DEFAULT_AVATAR_FILENAME = 'defaultAvatar.png'

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # Kyle Fitzsimmons, 2017
 from datetime import datetime
+import pytz
+
 from models import db, PromptResponse
 
 
@@ -17,10 +19,8 @@ class MobilePromptsActions:
     def create_lookup(self, prompts):
         prompts_lookup = {}
         for p in prompts:
-            uuid = p['uuid']
-            prompt_num = p['prompt_num']
-            prompts_lookup.setdefault(uuid, {})
-            prompts_lookup[prompt_num] = p
+            prompts_lookup.setdefault(p.prompt_uuid, {})
+            prompts_lookup[p.prompt_uuid][p.prompt_num] = p
         return prompts_lookup
 
     def upsert(self, user, prompts):
@@ -35,14 +35,14 @@ class MobilePromptsActions:
                 prompt['displayed_at'] = prompt.pop('timestamp')
 
             uuid = prompt['uuid']
-            prompt_num = prompt['prompt_num']
-            if prompt.get(uuid) and prompt[uuid].get(prompt_num):
+            prompt_num = int(prompt['prompt_num'])
+            if uuid in existing_lookup:
                 response = existing_lookup[uuid][prompt_num]
                 response.response = prompt['answer']
                 response.recorded_at = prompt['recorded_at']
                 response.latitude = prompt['latitude']
                 response.longitude = prompt['longitude']
-                response.edited_at = datetime.now()
+                response.edited_at = datetime.now(pytz.utc)
             else:
                 response = PromptResponse(
                     survey_id=user.survey_id,
@@ -56,4 +56,5 @@ class MobilePromptsActions:
                     longitude=prompt['longitude'])
             responses.append(response)
         db.session.bulk_save_objects(responses)
+        db.session.commit()
         return responses

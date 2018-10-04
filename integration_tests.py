@@ -13,6 +13,8 @@ import random
 import requests
 import time
 
+START_DATE = '-7d'
+END_DATE = '-1s'
 
 SERVER = 'development'
 if SERVER == 'development':
@@ -80,20 +82,21 @@ def generate_installation(uuid_pool):
     fake_uuid = fake.uuid4()
     while fake_uuid in uuid_pool:
         fake_uuid = fake.uuid4()
+    # fake_uuid = random.choice(uuid_pool.keys())
 
-    fake_dt = tz.localize(fake.date_time_between(start_date='-15d', end_date='now')).isoformat()
+    fake_dt = tz.localize(fake.date_time_between(start_date=START_DATE, end_date=END_DATE)).isoformat()
 
     # generate fake data
     test_data = {
         'user': {
             'uuid': fake_uuid,
             'model': 'iPhone 4s',
-            'itinerum_version': '99c',
+            'itinerumVersion': '99c',
             'os': 'ios' if fake.pybool() else 'android',
-            'os_version': str(fake.pydecimal(left_digits=2, right_digits=2, positive=True)),
+            'osVersion': str(fake.pydecimal(left_digits=2, right_digits=2, positive=True)),
             'created_at': fake_dt
         },
-        'survey_name': survey_name
+        'surveyName': survey_name
     }
 
     new_installation_url = mobile_url + '/create'
@@ -188,8 +191,9 @@ def generate_survey_answers(uuid, schema):
 
     update_url = mobile_url + '/update'
     r = requests.post(update_url, json=test_data)
+
     assert r.status_code == 201
-    assert(r.json()['status'] == 'success')
+    assert r.json()['status'].startswith('Warning (deprecated)')
 
     # print('Update survey responses request:')
     # print(json.dumps(test_data, indent=4))
@@ -202,7 +206,7 @@ def generate_survey_answers(uuid, schema):
 def generate_coordinates(uuid, n=0):
     coordinates = []
 
-    fake_dt = tz.localize(fake.date_time_between(start_date='-24h', end_date='-1s'))
+    fake_dt = tz.localize(fake.date_time_between(start_date=START_DATE, end_date=END_DATE))
     for i in range(n):
         coordinates.append({
             'latitude': str(45.45 + random.random()/10),
@@ -214,6 +218,7 @@ def generate_coordinates(uuid, n=0):
             'acceleration_y': random.random(),
             'acceleration_z': random.random(),
             'mode_detected': random.randint(1, 5),
+            'point_type': random.randint(1, 8),
             'timestamp': fake_dt.isoformat()
         })
         fake_dt += timedelta(seconds=15)
@@ -244,7 +249,7 @@ def generate_cancelled_prompts(uuid, prompts, n=0):
 
     cancelled_prompts = []
     for i in range(n):
-        fake_dt = fake.date_time_between(start_date='-24h', end_date='-1s')
+        fake_dt = fake.date_time_between(start_date=START_DATE, end_date=END_DATE)
         c = {
             'uuid': fake.uuid4(),
             'latitude': str(45.45 + random.random()/10),
@@ -271,13 +276,11 @@ def generate_cancelled_prompts(uuid, prompts, n=0):
         'uuid': uuid,
         'cancelledPrompts': cancelled_prompts
     }
-
     cancelled_prompt_url = mobile_url + '/update'
     r = requests.post(cancelled_prompt_url, json=test_data)
 
     if cancelled_prompts:
         assert r.status_code == 201
-
     return cancelled_prompts
 
 
@@ -292,17 +295,23 @@ def generate_prompts_answers(uuid, prompts, cancelled_prompts, n=0):
         for i in range(num_of_selections):
             selections.append(random.choice(choices))
         return selections
+    def choose_text_csv(question):
+        return fake.text().split()[:3]
+    def choose_text(question):
+        return fake.text()
 
     fn = {
         1: choose_selection,
-        2: choose_selections
+        2: choose_selections,
+        3: choose_text_csv,
+        5: choose_text
     }
     answers = []
     for i in range(n):
         # update half of the cancelled prompts to answered prompts
         update_cancelled_prompt = fake.pybool()
         recorded_at_offset = random.randint(0, 180)
-        if update_cancelled_prompt is True:
+        if update_cancelled_prompt is True and cancelled_prompts:
             cancelled_idx = random.randint(0, len(cancelled_prompts) - 1)
             cancelled = cancelled_prompts.pop(cancelled_idx)
             prompt_uuid = cancelled['uuid']
@@ -311,7 +320,7 @@ def generate_prompts_answers(uuid, prompts, cancelled_prompts, n=0):
                                   timedelta(seconds=recorded_at_offset)).isoformat()
         else:
             prompt_uuid = fake.uuid4()
-            fake_dt = fake.date_time_between(start_date='-24h', end_date='-1s')
+            fake_dt = fake.date_time_between(start_date=START_DATE, end_date=END_DATE)
             prompt_displayed_at = tz.localize(fake_dt).isoformat()
             prompt_recorded_at = tz.localize(fake_dt + timedelta(seconds=recorded_at_offset)).isoformat()
 
@@ -345,7 +354,6 @@ def generate_prompts_answers(uuid, prompts, cancelled_prompts, n=0):
     # print('Response:')
     # print(json.dumps(r.json(), indent=4))
     # print('\n\n-------------------------------\n')
-
     return r
 
 

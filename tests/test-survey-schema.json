@@ -1,0 +1,81 @@
+{
+    "surveyName": "test", 
+    "adminEmail": "test@email.com", 
+    "adminPassword": "test", 
+    "language": "en", 
+    "surveyQuestions": [
+        {
+            "fields": {
+                "choices": [
+                    "A", 
+                    "B"
+                ]
+            }, 
+            "prompt": "Which is your favorite letter?", 
+            "id": 1, 
+            "colName": "survey_dropdown"
+        }, 
+        {
+            "fields": {
+                "choices": [
+                    "Checkbox 1", 
+                    "Checkbox 1"
+                ]
+            }, 
+            "prompt": "Choose your preferred boxes", 
+            "id": 2, 
+            "colName": "survey_checkboxes"
+        }, 
+        {
+            "fields": {
+                "number": ""
+            }, 
+            "prompt": "Enter an arbitrarily number", 
+            "id": 3, 
+            "colName": "survey_number"
+        }, 
+        {
+            "fields": {
+                "latitude": "", 
+                "longitude": ""
+            }, 
+            "prompt": "Pin an address on the map", 
+            "id": 4, 
+            "colName": "survey_map"
+        }, 
+        {
+            "fields": {
+                "text": ""
+            }, 
+            "prompt": "Enter a lengthy text, possibly a novel?", 
+            "id": 5, 
+            "colName": "survey-textbox"
+        }
+    ], 
+    "surveyPrompts": [
+        {
+            "fields": {
+                "choices": [
+                    "Home", 
+                    "Work", 
+                    "School"
+                ]
+            }, 
+            "prompt": "Where are you now?", 
+            "id": 1, 
+            "colName": "prompt_dropdown"
+        }, 
+        {
+            "fields": {
+                "choices": [
+                    "Great", 
+                    "Indifferent", 
+                    "Please don't ask me any more questions"
+                ]
+            }, 
+            "prompt": "How do you feel about answering prompts?", 
+            "id": 2, 
+            "colName": "prompt_checkboxes"
+        }
+    ]
+}

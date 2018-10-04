@@ -10,14 +10,12 @@ from sqlalchemy.ext.mutable import MutableDict
 db = SQLAlchemy()
 
 
-# Web interface tables ========================================================
+# Web interface tables =========================================================
 class Base(db.Model):
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime(timezone=True),
-                           default=db.func.current_timestamp())
-    modified_at = db.Column(db.DateTime(timezone=True),
-                            default=db.func.current_timestamp(),
+    created_at = db.Column(db.DateTime(timezone=True), default=db.func.current_timestamp())
+    modified_at = db.Column(db.DateTime(timezone=True), default=db.func.current_timestamp(),
                             onupdate=db.func.current_timestamp())
 
 
@@ -95,12 +93,12 @@ class WebUserRole(db.Model, RoleMixin):
         return '<WebUserRole %r>' % self.name
 
 
-# Survey tables ===============================================================
+# Survey tables ================================================================
 class Survey(Base):
     __tablename__ = 'surveys'
 
     name = db.Column(db.String(255), nullable=False, unique=True)
-    pretty_name = db.Column(db.String(80))
+    pretty_name = db.Column(db.String(255))
     language = db.Column(db.String(2))
     about_text = db.Column(db.Text)
     terms_of_service = db.Column(db.Text)
@@ -108,7 +106,9 @@ class Survey(Base):
     avatar_uri = db.Column(db.String(255))
     max_survey_days = db.Column(db.Integer, default=14)
     max_prompts = db.Column(db.Integer, default=20)
+    gps_accuracy_threshold = db.Column(db.Integer, nullable=False, default=50)
     trip_break_interval = db.Column(db.Integer, nullable=False, default=360)
+    trip_break_cold_start_distance = db.Column(db.Integer, nullable=False, default=750)
     trip_subway_buffer = db.Column(db.Integer, nullable=False, default=300)
     last_export = db.Column(MutableDict.as_mutable(JSONB))
     record_acceleration = db.Column(db.Boolean, default=True)
@@ -177,6 +177,7 @@ class SurveyQuestion(db.Model):
     question_type = db.Column(db.Integer)
     question_label = db.Column(db.String(100))
     question_text = db.Column(db.String(500))
+    answer_required = db.Column(db.Boolean, default=True)
 
     choices = db.relationship('SurveyQuestionChoice',
                               backref=db.backref('survey_questions'),
@@ -185,7 +186,7 @@ class SurveyQuestion(db.Model):
                               lazy='joined')
 
     def __repr__(self):
-        return '<SurveyQuestion survey_id=%d question_num=%d>' % (self.survey_id,
+        return '<SurveyQuestion survey_id=%s question_num=%s>' % (self.survey_id,
                                                                   self.question_num)
 
 
@@ -211,6 +212,7 @@ class PromptQuestion(db.Model):
     prompt_type = db.Column(db.Integer)
     prompt_label = db.Column(db.String(100))
     prompt_text = db.Column(db.String(500))
+    answer_required = db.Column(db.Boolean, default=True)
 
     choices = db.relationship('PromptQuestionChoice',
                               backref=db.backref('prompt_questions'),
@@ -240,15 +242,15 @@ class SubwayStop(db.Model):
     __tablename__ = 'survey_subway_stops'
 
     id = db.Column(db.Integer, primary_key=True)
-    survey_id = db.Column(db.Integer, db.ForeignKey(Survey.id), index=True)
+    survey_id = db.Column(db.Integer, db.ForeignKey(Survey.id, ondelete='CASCADE'))
     latitude = db.Column(db.Numeric(precision=16, scale=10))
     longitude = db.Column(db.Numeric(precision=16, scale=10))
 
     def __repr__(self):
-        return '<SubwayStop %s>' % self.id
+        return '<SubwayStop %d>' % self.id
 
 
-# Mobile app response tables ==================================================
+# Mobile app response tables ===================================================
 class MobileUser(Base):
     __tablename__ = 'mobile_users'
 
@@ -300,6 +302,7 @@ class MobileCoordinate(db.Model):
     acceleration_y = db.Column(db.Numeric(precision=10, scale=6))
     acceleration_z = db.Column(db.Numeric(precision=10, scale=6))
     mode_detected = db.Column(db.Integer)
+    point_type = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True))
 
     __table_args__ = (
@@ -309,7 +312,7 @@ class MobileCoordinate(db.Model):
     )
 
     def __repr__(self):
-        return '<MobileCoordinate %s>' % self.id
+        return '<MobileCoordinate %d>' % self.id
 
 
 class SurveyResponse(db.Model):
@@ -337,15 +340,14 @@ class PromptResponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     survey_id = db.Column(db.Integer, db.ForeignKey(Survey.id, ondelete='CASCADE'))
     mobile_id = db.Column(db.Integer, db.ForeignKey(MobileUser.id, ondelete='CASCADE'))
-    prompt_uuid = db.Column(db.String(36), index=True)
+    prompt_uuid = db.Column(db.String(36), index=True, nullable=False)
     prompt_num = db.Column(db.Integer, nullable=False)
     response = db.Column(JSONB)
     displayed_at = db.Column(db.DateTime(timezone=True))
     recorded_at = db.Column(db.DateTime(timezone=True),
                             default=db.func.current_timestamp())
     edited_at = db.Column(db.DateTime(timezone=True),
-                          default=db.func.current_timestamp(),
-                          nullable=False)
+                          default=db.func.current_timestamp())
     latitude = db.Column(db.Numeric(precision=16, scale=10))
     longitude = db.Column(db.Numeric(precision=16, scale=10))
 
@@ -361,7 +363,7 @@ class CancelledPromptResponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     survey_id = db.Column(db.Integer, db.ForeignKey(Survey.id, ondelete='CASCADE'))
     mobile_id = db.Column(db.Integer, db.ForeignKey(MobileUser.id, ondelete='CASCADE'))
-    prompt_uuid = db.Column(db.String(36), index=True)
+    prompt_uuid = db.Column(db.String(36), index=True, unique=True, nullable=False)
     latitude = db.Column(db.Numeric(precision=10, scale=7))
     longitude = db.Column(db.Numeric(precision=10, scale=7))
     displayed_at = db.Column(db.DateTime(timezone=True))
@@ -369,11 +371,57 @@ class CancelledPromptResponse(db.Model):
     is_travelling = db.Column(db.Boolean)
 
     def __repr__(self):
-        return '<MobileCancelledPrompt %s>' % self.id
+        return '<MobileCancelledPrompt %d>' % self.id
 
 
-# Relationship role tables ====================================================
+# Relationship role tables =====================================================
 user_datastore = SQLAlchemyUserDatastore(db, WebUser, WebUserRole)
 web_user_role_lookup = db.Table('web_user_role_lookup',
-                                db.Column('user_id', db.Integer(), db.ForeignKey('web_users.id')),
+                                db.Column('user_id', db.Integer(), db.ForeignKey('web_users.id', ondelete='CASCADE')),
                                 db.Column('role_id', db.Integer(), db.ForeignKey('web_user_roles.id')))
+
+
+# Statistics tables ============================================================
+class Stats(db.Model):
+    __tablename__ = 'statistics'
+
+    id = db.Column(db.Integer, primary_key=True)
+    last_stats_update = db.Column(db.DateTime(timezone=True))
+    last_survey_stats_update = db.Column(db.DateTime(timezone=True))
+    last_mobile_stats_update = db.Column(db.DateTime(timezone=True))
+    total_surveys = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<Statistics %d>' % self.id
+
+
+class SurveyStats(db.Model):
+    __tablename__ = 'statistics_surveys'
+
+    id = db.Column(db.Integer, primary_key=True)
+    total_coordinates = db.Column(db.Integer)
+    total_prompts = db.Column(db.Integer)
+    total_cancelled_prompts = db.Column(db.Integer)    
+
+    def __repr__(self):
+        return '<SurveyStatistics %d>' % self.mobile_id
+
+
+class MobileUserStats(db.Model):
+    __tablename__ = 'statistics_mobile_users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    survey_id = db.Column(db.Integer, db.ForeignKey(Survey.id, ondelete='CASCADE'))
+    mobile_id = db.Column(db.Integer, db.ForeignKey(MobileUser.id, ondelete='CASCADE'), unique=True)
+    latest_coordinate = db.Column(db.Integer,
+                                  db.ForeignKey(MobileCoordinate.id, ondelete='SET NULL'))
+    latest_prompt = db.Column(db.Integer,
+                              db.ForeignKey(PromptResponse.id, ondelete='SET NULL'))
+    latest_cancelled_prompt = db.Column(db.Integer,
+                                        db.ForeignKey(CancelledPromptResponse.id, ondelete='SET NULL'))
+    total_coordinates = db.Column(db.Integer)
+    total_prompts = db.Column(db.Integer)
+    total_cancelled_prompts = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<MobileUserStats %d>' % self.mobile_id

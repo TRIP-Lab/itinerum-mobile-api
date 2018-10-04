@@ -22,7 +22,6 @@ class JSONResponse(ResponseBase):
         if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] or current_app.debug:
             indent = 2
             separators = (', ', ': ')
-
         return json.dumps(data, indent=indent, separators=separators)
 
 
@@ -30,9 +29,9 @@ class Success(JSONResponse):
     headers = {}
     res_dict = {}
 
-    def __init__(self, status_code, headers, resource_type, body):
+    def __init__(self, status_code, headers, resource_type, body, status=None):
         super(Success, self).__init__('success', status_code)
-        self.res_dict['status'] = 'success'
+        self.res_dict['status'] = status or 'success'
         self.res_dict['type'] = resource_type
         self.res_dict['results'] = body
 
