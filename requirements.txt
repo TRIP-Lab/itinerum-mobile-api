@@ -38,5 +38,5 @@ six==1.11.0
 speaklater==1.3
 SQLAlchemy==1.2.12
 text-unidecode==1.2
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 WTForms==2.2.1
