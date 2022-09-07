@@ -27,7 +27,7 @@ passlib==1.7.1
 pathlib2==2.3.2
 pluggy==0.7.1
 psycopg2-binary==2.7.5
-py==1.6.0
+py==1.10.0
 pycparser==2.19
 pytest==3.8.2
 pytest-cov==2.6.0
