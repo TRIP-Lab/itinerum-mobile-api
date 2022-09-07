@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Kyle Fitzsimmons, 2017
-from models import db, CancelledPromptResponse
 import ciso8601
+from sqlalchemy.exc import IntegrityError
+
+from models import db, CancelledPromptResponse
 
 
 class MobileCancelledPromptsActions:
@@ -26,8 +28,11 @@ class MobileCancelledPromptsActions:
                                         cancelled_at=cancelled_at,
                                         is_travelling=prompt.get('is_travelling'))
             bulk_rows.append(c)
-        db.session.bulk_save_objects(bulk_rows)
-        db.session.commit()
+        try:
+            db.session.bulk_save_objects(bulk_rows)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
         return cancelled_prompts
 
     def delete(self, prompts_uuids):

@@ -312,7 +312,11 @@ class MobileCoordinate(db.Model):
     )
 
     def __repr__(self):
-        return '<MobileCoordinate %d>' % self.id
+        if self.id:
+            id = self.id
+        else:
+            id = ''
+        return '<MobileCoordinate %s>' % id
 
 
 class SurveyResponse(db.Model):
@@ -371,7 +375,11 @@ class CancelledPromptResponse(db.Model):
     is_travelling = db.Column(db.Boolean)
 
     def __repr__(self):
-        return '<MobileCancelledPrompt %d>' % self.id
+        if self.id:
+            id = self.id
+        else:
+            id = ''        
+        return '<MobileCancelledPrompt %s>' % id
 
 
 # Relationship role tables =====================================================

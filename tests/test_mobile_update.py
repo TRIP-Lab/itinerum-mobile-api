@@ -44,9 +44,8 @@ def assert_request_data_matches_db_record(request_dict, db_record, api_version=1
 # (all keys within returned `survey` schema will be user-generated)
 def test_upsert_mobile_user_survey_response_legacy(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
-    schema = response_json['results']['survey']
+    uuid = response.json['results']['uuid']
+    schema = response.json['results']['survey']
 
     test_data = {
         'uuid': uuid,
@@ -89,8 +88,7 @@ def test_upsert_mobile_user_survey_response_legacy(app, client, session):
 
 def test_add_mobile_user_coordinates(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     coordinates = [{
         'latitude': '45.5088872928',
@@ -128,7 +126,7 @@ def test_add_mobile_user_coordinates(app, client, session):
     assert r.status_code == 201
 
     # check that a deprecation warning is provided for v1 api
-    assert 'Warning (deprecated):' in r.get_json()['status']
+    assert 'Warning (deprecated):' in r.json['status']
 
     # check that the same number of coordinates with all provided information are returned
     # from database with same attributes and order as provided
@@ -141,8 +139,7 @@ def test_add_mobile_user_coordinates(app, client, session):
 
 def test_add_mobile_user_coordinates_legacy(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     coordinates = [{
         'latitude': '45.5088872928',
@@ -180,7 +177,7 @@ def test_add_mobile_user_coordinates_legacy(app, client, session):
     assert r.status_code == 201
 
     # check that a deprecation warning is provided for v1 api
-    assert 'Warning (deprecated):' in r.get_json()['status']
+    assert 'Warning (deprecated):' in r.json['status']
 
     # check that the same number of coordinates with all provided information are returned
     # from database with same attributes and order as provided
@@ -193,8 +190,7 @@ def test_add_mobile_user_coordinates_legacy(app, client, session):
 
 def test_add_mobile_user_cancelled_prompts(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     cancelled_prompts = [{
         'cancelledAt': None,
@@ -232,8 +228,7 @@ def test_add_mobile_user_cancelled_prompts(app, client, session):
 
 def test_add_mobile_user_cancelled_prompts_legacy(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     cancelled_prompts = [{
         'cancelled_at': None,
@@ -260,7 +255,7 @@ def test_add_mobile_user_cancelled_prompts_legacy(app, client, session):
     assert r.status_code == 201
 
     # check that a deprecation warning is provided for v1 api
-    assert 'Warning (deprecated):' in r.get_json()['status']
+    assert 'Warning (deprecated):' in r.json['status']
 
     # check that the same number of cancelled prompts with all provided information are returned
     # from database with same attributes and order as provided
@@ -274,8 +269,7 @@ def test_add_mobile_user_cancelled_prompts_legacy(app, client, session):
 
 def test_error_add_prompt_missing_uuid(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     cancelled_prompts = [{
         'cancelled_at': None,
@@ -296,8 +290,7 @@ def test_error_add_prompt_missing_uuid(app, client, session):
 
 def test_add_mobile_user_prompts(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     prompt_responses = [{
         'answer': ['Work'],
@@ -354,8 +347,7 @@ def test_add_mobile_user_prompts(app, client, session):
 
 def test_add_mobile_user_prompts_legacy(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     prompt_responses = [{
         'answer': ['Work'],
@@ -400,7 +392,7 @@ def test_add_mobile_user_prompts_legacy(app, client, session):
     assert r.status_code == 201
 
     # check that a deprecation warning is provided for v1 api
-    assert 'Warning (deprecated):' in r.get_json()['status']
+    assert 'Warning (deprecated):' in r.json['status']
 
     # check that the same number of cancelled prompts with all provided information are returned
     # from database with same attributes and order as provided
@@ -415,8 +407,7 @@ def test_add_mobile_user_prompts_legacy(app, client, session):
 
 def test_upgrade_mobile_user_cancelled_prompts(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     # send a cancelled prompt to be upgraded in first request
     cancelled_prompts = [{
@@ -463,8 +454,7 @@ def test_upgrade_mobile_user_cancelled_prompts(app, client, session):
 
 def test_upgrade_mobile_user_cancelled_prompts_same_request(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     # send a cancelled prompt to be upgraded in same request as prompt answer
     cancelled_prompts = [{
@@ -504,8 +494,7 @@ def test_upgrade_mobile_user_cancelled_prompts_same_request(app, client, session
 
 def test_edit_mobile_user_prompts(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     prompt_responses = [{
         'answer': ['Work'],
@@ -563,8 +552,7 @@ def test_edit_mobile_user_prompts(app, client, session):
 
 def test_empty_update_is_200(app, client, session):
     response = create_mobile_user(app, client, session)
-    response_json = response.get_json()
-    uuid = response_json['results']['uuid']
+    uuid = response.json['results']['uuid']
 
     test_data = {'uuid': uuid}
     url = url_for('api.update_v1')

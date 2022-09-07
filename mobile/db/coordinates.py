@@ -16,13 +16,14 @@ class MobileCoordinatesActions:
                     chunk.append(next(it))
                 except StopIteration:
                     yield chunk
-                    return
+                    raise StopIteration
             yield chunk
 
     def insert(self, user, coordinates):
+        inserted_coordinates = []
         survey_id, mobile_id = user.survey_id, user.id
-        bulk_rows = []
         for chunk in self._chunks(coordinates, 5000):
+            bulk_rows = []
             for point in chunk:
                 coordinate = MobileCoordinate(
                     survey_id=survey_id,
@@ -42,5 +43,7 @@ class MobileCoordinatesActions:
                     timestamp=ciso8601.parse_datetime(point['timestamp'])
                 )
                 bulk_rows.append(coordinate)
-        db.session.bulk_save_objects(bulk_rows)
-        return bulk_rows
+            db.session.bulk_save_objects(bulk_rows)
+            inserted_coordinates.extend(bulk_rows)
+        db.session.commit()
+        return inserted_coordinates

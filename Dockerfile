@@ -5,4 +5,4 @@ RUN pip install --upgrade pip
 COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python", "wsgi_mobile.py"]
+ENTRYPOINT exec gunicorn wsgi_mobile:app -b 0.0.0.0:$IT_MOBILE_PORT -k gevent -w 2 --access-logfile=- --timeout=45

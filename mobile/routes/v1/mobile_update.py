@@ -11,6 +11,17 @@ from utils.validators import validate_json, value_exists
 database = Database()
 
 
+from threading import Thread
+import requests
+def log_request(data):
+    def _async_push(data):
+        r = requests.post('https://build.triplab.ca/logger/log', json=data)
+
+    t = Thread(target=_async_push, args=(data,))
+    t.daemon = True
+    t.start()
+
+
 class MobileUpdateDataRoute(Resource):
     headers = {'Location': '/update'}
     resource_type = 'MobileUpdateData'
@@ -62,6 +73,7 @@ class MobileUpdateDataRoute(Resource):
                 'cancelledPrompts': 'No cancelled prompts supplied.'
             }
             if validated['survey_answers']:
+                log_request(validated)
                 survey_answers = database.survey.upsert(user=user,
                                                         answers=validated['survey_answers'])
                 if survey_answers:

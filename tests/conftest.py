@@ -8,11 +8,12 @@ from flask_security import Security, SQLAlchemyUserDatastore
 import os
 import pytest
 
-from .admin_prepopulate_survey import prepopulate
+from admin_prepopulate_survey import prepopulate
 from config import MobileTestingConfig
 from models import user_datastore, WebUser, WebUserRole
 from mobile.server import create_app
 from mobile.database import db as _db
+
 
 
 @pytest.fixture(scope='session')
@@ -30,18 +31,11 @@ def app(request):
     return app
 
 
-@pytest.fixture(scope='session')
-def client(app):
-    return app.test_client()
-
-
 # Session-wide test database
 @pytest.fixture(scope='session')
 def db(app, request):
     app.config['SECURITY_PASSWORD_SALT'] = 'ChangeMe'
     _db.app = app
-    if app.config['CONF'] == 'testing':
-        _db.drop_all()
     _db.create_all()
 
     user_datastore = SQLAlchemyUserDatastore(_db, WebUser, WebUserRole)

@@ -13,18 +13,19 @@ import random
 import requests
 import time
 
-START_DATE = '-7d'
+START_DATE = '-10s'
 END_DATE = '-1s'
 
-SERVER = 'development'
+SERVER = 'production'
 if SERVER == 'development':
     dashboard_url = 'http://localhost:9000/dashboard/v1'
     mobile_url = 'http://localhost:9001/mobile/v1'
-    username = 'test@email.com'
-    password = 'test'
-    survey_name = 'test'
+    username = 'changeme@itinerum.ca'
+    password = 'changeme'
+    survey_name = 'changeme'
 # Other server configs may be added here
 # ---------------------------------------
+
 
 
 fake = Factory.create()
@@ -106,7 +107,7 @@ def generate_installation(uuid_pool):
     response = r.json()['results']
 
     assert 'survey' in response
-    # pprint(response)
+    pprint(response)
     assert len(response['survey']) > 0
     assert 'defaultAvatar' in response
     assert '/assets/' in response['defaultAvatar']
@@ -121,17 +122,17 @@ def generate_installation(uuid_pool):
     return fake_uuid, response
 
 
-def generate_survey_answers(uuid, schema):
+def generate_survey_answers(uuid, survey_name, schema):
     def choose_selection(question):
         choice = random.choice(question['fields']['choices'])
         return [choice]
     def choose_selections(question):
         choices = question['fields']['choices']
         num_of_selections = random.randint(0, len(choices))
-        selections = []
+        selections = set()
         for i in range(num_of_selections):
-            selections.append(random.choice(choices))
-        return selections
+            selections.add(random.choice(choices))
+        return list(selections)
     def choose_number(question):
         return fake.pyint()
     def choose_address(question):
@@ -173,26 +174,67 @@ def generate_survey_answers(uuid, schema):
         'uuid': uuid,
         'survey': {},
     }
-    user_type = random.choice(['student', 'worker', 'both'])
-    if user_type is 'student':
-        ignore_ids = [107, 110, 111]
-    elif user_type is 'worker':
-        ignore_ids = [106, 108, 109]
-    else:
-        ignore_ids = []
 
     # answer user supplied questions
-    for question in schema:
-        question_id = question['id']
-        if question_id in ignore_ids:
-            continue
+    if survey_name in ['kyle', 'itinerummtlte2018', 'itinerummtltf2018', 'itinerummtlte2018ios', 'itinerummtltf2018ios']:
+        # itinerummtl2018 has removed "both student and worker" option
+        user_type = random.choice(['student', 'worker'])
+        if user_type is 'student':
+            ignore_ids = [107, 110, 111]
+        elif user_type is 'worker':
+            ignore_ids = [106, 108, 109]
 
-        col_name = question['colName']
-        test_data['survey'][col_name] = fn[question_id](question)
+        for question in schema:
+            question_id = question['id']
+            if question_id in ignore_ids:
+                continue
+
+            col_name = question['colName']
+
+            # handle new mode categories
+            itinerummtl_2018_member_types = ['A full-time worker', 'A part-time worker', 'A student',
+                                           'Retired', 'At home', 'Other']
+            itinerummtl_2018_primary_modes = ['Car / Motorcyle', 'Electric Car (green lic. plate)',
+                                            'Bus', 'Metro', 'Train', 'On foot', 'Bicycle', 'Other']
+            itinerummtl_2018_secondary_modes = ['No', 'Car / Motorcyle', 'Electric Car (green lic. plate)',
+                                              'Bus', 'Metro', 'Train', 'On foot', 'Bicycle', 'Other']
+
+            if col_name == 'member_type':
+                test_data['survey'][col_name] = [str(random.randint(0, len(itinerummtl_2018_member_types) - 1))]
+            elif col_name in ['travel_mode_work', 'travel_mode_study', 'travel_mode_alt_work', 'travel_mode_alt_study']:
+                if col_name in ['travel_mode_work', 'travel_mode_study']:
+                    modes = itinerummtl_2018_primary_modes
+                else:
+                    modes = itinerummtl_2018_secondary_modes
+                question = {'fields': {'choices': modes}}
+                mode_selections = choose_selections(question)
+                mode_selections_idxs = [str(modes.index(s)) for s in mode_selections]
+                test_data['survey'][col_name] = mode_selections_idxs
+            else:
+                col_name = question['colName']
+                test_data['survey'][col_name] = fn[question_id](question)
+
+    # handle surveys with default hardcoded questions generally
+    else:
+        user_type = random.choice(['student', 'worker', 'both'])
+        if user_type is 'student':
+            ignore_ids = [107, 110, 111]
+        elif user_type is 'worker':
+            ignore_ids = [106, 108, 109]
+        else:
+            ignore_ids = []
+
+        for question in schema:
+            question_id = question['id']
+            if question_id in ignore_ids:
+                continue
+
+            col_name = question['colName']
+            test_data['survey'][col_name] = fn[question_id](question)
 
     update_url = mobile_url + '/update'
-    r = requests.post(update_url, json=test_data)
 
+    r = requests.post(update_url, json=test_data)
     assert r.status_code == 201
     assert r.json()['status'].startswith('Warning (deprecated)')
 
@@ -255,8 +297,8 @@ def generate_cancelled_prompts(uuid, prompts, n=0):
             'uuid': fake.uuid4(),
             'latitude': str(45.45 + random.random()/10),
             'longitude': str(-73.55 + random.random()/10),
-            'displayed_at': tz.localize(fake_dt).isoformat(),
-            'cancelled_at': None,
+            'displayedAt': tz.localize(fake_dt).isoformat(),
+            'cancelledAt': None,
             'isTravelling': None,
         }
 
@@ -316,7 +358,7 @@ def generate_prompts_answers(uuid, prompts, cancelled_prompts, n=0):
             cancelled_idx = random.randint(0, len(cancelled_prompts) - 1)
             cancelled = cancelled_prompts.pop(cancelled_idx)
             prompt_uuid = cancelled['uuid']
-            prompt_displayed_at = cancelled['displayed_at']
+            prompt_displayed_at = cancelled['displayedAt']
             prompt_recorded_at = (dateutil.parser.parse(prompt_displayed_at) + \
                                   timedelta(seconds=recorded_at_offset)).isoformat()
         else:
@@ -382,7 +424,8 @@ def run_test(users=1, points=25):
 
         # step 2: user has answered survey questions and is ready to begin collecting points
         t1 = time.time()
-        generate_survey_answers(uuid, response['survey'])
+        survey_name = response['surveyName']
+        generate_survey_answers(uuid, survey_name, response['survey'])
 
         # step 3: add coordinates
         t2 = time.time()
@@ -428,4 +471,4 @@ def run_test(users=1, points=25):
 
 if __name__ == '__main__':
     # download_points()
-    run_test(users=1, points=20)
+    run_test(users=1, points=25)

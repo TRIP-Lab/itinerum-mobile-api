@@ -105,3 +105,4 @@ conf/*
 !conf/sample
 !conf/testing
 .pytest_cache
+.vscode

@@ -1,2 +1,6 @@
-bcrypt
+bcrypt==3.1.6
+coverage==4.5.2
 faker==0.8.13
+pytest-cov==2.6.1
+pytest-flask==0.14.0
+python-dateutil==2.8.0

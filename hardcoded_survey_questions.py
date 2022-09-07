@@ -32,6 +32,7 @@ lookup = {
 }
 
 # the default questions to populate each new survey with
+# TODO: ordering of primary mode to work alternatives inconsistent with other mode questions
 default_stack = [
     {
         "prompt": "Please enter your home location on the map",

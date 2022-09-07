@@ -38,7 +38,7 @@ class MobileUserActions:
             return user
 
         # TODO: disabled for testing but re-enable when we go live!
-        # (toggles wheter survey answers can be edited via phone)
+        # (toggles whether survey answers can be edited via phone)
         # elif existing and not self._has_answered_survey(existing):
         else:
             existing.model = user_data['model']

@@ -46,10 +46,13 @@ app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 
 if __name__ == "__main__":
-    if app.config.get('CONF') in ['development', 'testing']:
+    if app.config.get('CONF') == 'development':
         app.run(host=app.config['APP_HOST'],
                 port=app.config['APP_PORT'],
                 debug=True)
+    elif app.config.get('CONF') == 'testing':
+        app.run(host=app.config['APP_HOST'],
+                port=app.config['APP_PORT'])        
     else:
         app.run(host='0.0.0.0',
                 port=app.config['APP_PORT'])

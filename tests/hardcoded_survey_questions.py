@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Kyle Fitzsimmons, 2016-2018
-#
-# Note: Mandatory questions hardcoded for beginning of survey
-#       to eventually be removed entirely. Optional components
-#       for each should be made in their place and left to the
-#       survey administrator's discretion.
+# Kyle Fitzsimmons, 2016
 
 
 # field names and concatenation order for survey responses
@@ -41,8 +36,7 @@ default_stack = [
             "latitude": None,
             "latitude": None,
         },
-        "colName": "location_home",
-        "answerRequired": True
+        "colName": "location_home"
     },
     {
         "prompt": "What is your primary occupation?",
@@ -54,8 +48,7 @@ default_stack = [
                 "A student",
                 "A student and a worker",
                 "Retired",
-                "At home",
-                "Other"
+                "At home"
             ],
             "choices_fr": [
                 "Travailleur à plein temps",
@@ -63,12 +56,10 @@ default_stack = [
                 "Étudiant",
                 "Étudiant et travailleur",
                 "Retraité",
-                "À la maison",
-                "Autre"
+                "À la maison"
             ]
         },
-        "colName": "member_type",
-        "answerRequired": True
+        "colName": "member_type"
     },
     {
         "prompt": "Please enter your work location on the map",
@@ -77,8 +68,7 @@ default_stack = [
             "latitude": None,
             "latitude": None,
         },
-        "colName": "location_work",
-        "answerRequired": True
+        "colName": "location_work"
     },
     {
         "prompt": "How do you typically commute to your work location?",
@@ -103,8 +93,7 @@ default_stack = [
                 "Autre combinaison"
             ]
         },
-        "colName": "travel_mode_work",
-        "answerRequired": True
+        "colName": "travel_mode_work"
     },
     {
         "prompt": "Do you use any alternative mode of travel to work?",
@@ -131,8 +120,7 @@ default_stack = [
                 "Autre combinaison"
             ]
         },
-        "colName": "travel_mode_alt_work",
-        "answerRequired": True
+        "colName": "travel_mode_alt_work"
     },
     {
         "prompt": "Please enter your study location on the map",
@@ -141,8 +129,7 @@ default_stack = [
             "latitude": None,
             "latitude": None,
         },
-        "colName": "location_study",
-        "answerRequired": True
+        "colName": "location_study"
     },
     {
         "prompt": "How do you typically commute to your studies?",
@@ -167,8 +154,7 @@ default_stack = [
                 "Autre combinaison"
             ]
         },
-        "colName": "travel_mode_study",
-        "answerRequired": True
+        "colName": "travel_mode_study"
     },
     {
         "prompt": "Do you use any alternative mode of travel to your studies?",
@@ -195,8 +181,7 @@ default_stack = [
                 "Autre combinaison"
             ]
         },
-        "colName": "travel_mode_alt_study",
-        "answerRequired": True
+        "colName": "travel_mode_alt_study"
     },
     {
         "prompt": "What is your gender?",
@@ -215,8 +200,7 @@ default_stack = [
                 "Ne veut pas répondre"
             ]
         },
-        "colName": "Gender",
-        "answerRequired": True
+        "colName": "Gender"
     },
     {
         "prompt": "What is your age bracket?",
@@ -243,8 +227,7 @@ default_stack = [
                 "85+"
             ]
         },
-        "colName": "Age",
-        "answerRequired": True
+        "colName": "Age"
     },
     {
         "prompt": "Please enter your email",
@@ -252,7 +235,6 @@ default_stack = [
         "fields": {
             "email": ""
         },
-        "colName": "Email",
-        "answerRequired": True
+        "colName": "Email"
     },
 ]

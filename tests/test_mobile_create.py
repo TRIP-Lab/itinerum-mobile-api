@@ -28,16 +28,15 @@ def test_create_mobile_user(app, client, session):
     r = client.post(url, data=json.dumps(new_user_payload))
     assert r.status_code == 201
 
-    json_data = r.get_json()
-    assert json_data['results']['uuid'] == new_user_payload['user']['uuid']
-    assert json_data['results']['lang'] == new_user_payload['lang']
-    assert json_data['results']['defaultAvatar'] == '/assets/static/defaultAvatar.png'
-    assert json_data['results']['recordAcceleration'] == True
-    assert json_data['results']['recordMode'] == True
-    assert json_data['results']['surveyName'] == 'test'
-    assert len(json_data['results']['prompt']['prompts']) == 2
-    assert len(json_data['results']['survey']) == 16
-    assert 'Warning (deprecated):' in json_data['status']
+    assert r.json['results']['uuid'] == new_user_payload['user']['uuid']
+    assert r.json['results']['lang'] == new_user_payload['lang']
+    assert r.json['results']['defaultAvatar'] == '/assets/static/defaultAvatar.png'
+    assert r.json['results']['recordAcceleration'] == True
+    assert r.json['results']['recordMode'] == True
+    assert r.json['results']['surveyName'] == 'test'
+    assert len(r.json['results']['prompt']['prompts']) == 2
+    assert len(r.json['results']['survey']) == 16
+    assert 'Warning (deprecated):' in r.json['status']
     return r
 
 
@@ -66,16 +65,15 @@ def test_create_mobile_user_legacy(app, client, session):
     r = client.post(url, data=json.dumps(new_user_payload))
     assert r.status_code == 201
 
-    json_data = r.get_json()
-    assert json_data['results']['uuid'] == new_user_payload['user']['uuid']
-    assert json_data['results']['lang'] == new_user_payload['lang']
-    assert json_data['results']['defaultAvatar'] == '/assets/static/defaultAvatar.png'
-    assert json_data['results']['recordAcceleration'] == True
-    assert json_data['results']['recordMode'] == True
-    assert json_data['results']['surveyName'] == 'test'
-    assert len(json_data['results']['prompt']['prompts']) == 2
-    assert len(json_data['results']['survey']) == 16
-    assert 'Warning (deprecated):' in json_data['status']
+    assert r.json['results']['uuid'] == new_user_payload['user']['uuid']
+    assert r.json['results']['lang'] == new_user_payload['lang']
+    assert r.json['results']['defaultAvatar'] == '/assets/static/defaultAvatar.png'
+    assert r.json['results']['recordAcceleration'] == True
+    assert r.json['results']['recordMode'] == True
+    assert r.json['results']['surveyName'] == 'test'
+    assert len(r.json['results']['prompt']['prompts']) == 2
+    assert len(r.json['results']['survey']) == 16
+    assert 'Warning (deprecated):' in r.json['status']
 
 
 def test_create_mobile_user_with_bad_survey_name(app, client, session):

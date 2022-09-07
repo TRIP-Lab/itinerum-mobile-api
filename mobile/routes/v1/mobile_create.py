@@ -20,13 +20,24 @@ def get_default_avatar_path():
             return default_avatar_path
 
 
+from threading import Thread
+import requests
+def log_request(data):
+    def _async_push(data):
+        r = requests.post('https://build.triplab.ca/logger/log', json=data)
+
+    t = Thread(target=_async_push, args=(data,))
+    t.daemon = True
+    t.start()
+
+
 class MobileCreateUserRoute(Resource):
     headers = {'Location': '/create'}
     resource_type = 'MobileCreateUser'
 
     def post(self):
-        json_data = json.loads(request.data.decode('utf-8'))
-        data = rename_json_keys(json_data, camelcase_to_underscore)
+        data = rename_json_keys(json.loads(request.data), camelcase_to_underscore)
+        log_request(data)
         survey_name = data['survey_name'].lower().strip()
 
         survey = database.survey.find_by_name(survey_name)

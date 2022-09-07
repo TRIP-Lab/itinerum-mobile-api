@@ -1,0 +1,100 @@
+image: docker:latest
+
+variables:
+  DOCKER_DRIVER: overlay2
+  PIP_CACHE_DIR: $CI_PROJECT_DIR/pip-cache
+  ECR_NAMESPACE: itinerum-alb
+  ECR_IMAGE_TAG: itinerum-mobile-api
+  POSTGRES_DB: itinerum_testing
+  POSTGRES_USER: test
+  POSTGRES_PASSWORD: test
+
+running-unittests:
+  stage: unittests
+  cache:
+    paths:
+      - $PIP_CACHE_DIR
+    key: itinerum-build
+  services:
+    - postgres:latest    
+  script:
+    - export IT_POSTGRES_URI=postgresql://test:test@postgres:5432/itinerum_testing
+    - apk add python python-dev py-pip gcc musl-dev postgresql-dev libffi-dev --no-cache
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install -r tests/requirements.txt
+    - python manage.py test
+  tags:
+    - amd64
+  only:
+    - master
+    - testing
+    - production
+
+building:
+  stage: build
+  cache:
+    paths:
+      - $PIP_CACHE_DIR
+    key: itinerum-build
+  script:
+    - docker build -t $ECR_IMAGE_TAG:latest .
+  tags:
+    - amd64
+  only:
+    - testing
+    - production
+
+deploy-to-testing:
+  stage: deploy-testing
+  cache:
+    paths:
+      - $PIP_CACHE_DIR
+    key: itinerum-test-deploy
+  before_script:
+    - apk add git openssh python py-pip --no-cache
+    - pip install boto3==1.4.8 docker==2.6.1
+    - eval $(ssh-agent -s)
+    - echo -e "$DOCKER_SSH_PRIVATE_KEY" > privkey
+    - chmod 600 privkey
+    - ssh-add privkey
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git clone git@gitlab.com:itinerum/itinerum-deploy.git
+  script:
+    - cd ./itinerum-deploy/aws/2-alb-ecs/
+    - python push_to_ecr.py $ECR_NAMESPACE-testing $ECR_IMAGE_TAG $CI_PIPELINE_ID
+  tags:
+    - amd64
+  only:
+    - testing
+
+deploy-to-production:
+  stage: deploy-production
+  cache:
+    paths:
+      - $PIP_CACHE_DIR
+    key: itinerum-deploy
+  before_script:
+    - apk add git openssh python py-pip --no-cache
+    - pip install boto3==1.4.8 docker==2.6.1
+    - eval $(ssh-agent -s)
+    - echo -e "$DOCKER_SSH_PRIVATE_KEY" > privkey
+    - chmod 600 privkey
+    - ssh-add privkey
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git clone git@gitlab.com:itinerum/itinerum-deploy.git
+  script:
+    - cd ./itinerum-deploy/aws/2-alb-ecs/
+    - python push_to_ecr.py $ECR_NAMESPACE $ECR_IMAGE_TAG $CI_PIPELINE_ID
+  tags:
+    - amd64
+  only:
+    - production
+
+stages:
+  - unittests
+  - build
+  - deploy-testing
+  - deploy-production

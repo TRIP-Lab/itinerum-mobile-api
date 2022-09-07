@@ -11,9 +11,9 @@ DEFAULT_STACK_COLUMNS = [q['colName'] for q in default_stack]
 class MobileSurveyActions:
     @staticmethod
     def _map_hardcoded_ints(survey, column, answer):
-        # Intercept MTL Trajet 2018 and map their updated hardcoded modes.
+        # Intercept Itinerum MTL 2018 and map their updated hardcoded modes.
         # TO DO: Remove this when hardcoded questions removed from platform.
-        if survey.name in ['mtlte2018', 'mtltf2018', 'mtlte2018ios', 'mtltf2018ios', 'mtlte2018cm', 'mtltf2018cm']:
+        if survey.name in ['itinerummtlte2018', 'itinerummtltf2018', 'itinerummtlte2018ios', 'itinerummtltf2018ios', 'itinerummtlte2018cm', 'itinerummtltf2018cm']:
             en_occupations = [
                 'A full-time worker',
                 'A part-time worker',
@@ -115,7 +115,7 @@ class MobileSurveyActions:
         survey = user.survey
         for column, answer in answers.items():
             # handle singular list responses--this conflicts with the sepcial
-            # case handling for MTL Trajet 2018. This is reverted by the special case
+            # case handling for itinerumMTL 2018. This is reverted by the special case
             # function and should be handled better.
             if isinstance(answer, list) and len(answer) == 1:
                 answer = answer[0]
