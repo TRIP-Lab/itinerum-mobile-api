@@ -9,7 +9,7 @@ ciso8601==2.1.1
 Click==7.0
 coverage==4.5.1
 Faker==0.9.1
-Flask==1.0.2
+Flask==2.3.2
 Flask-BabelEx==0.9.3
 Flask-Login==0.4.1
 Flask-Mail==0.9.1
